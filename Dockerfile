@@ -20,7 +20,7 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN curl -si https://deb.nodesource.com/setup_18.x | bash && \
+RUN curl -sS https://deb.nodesource.com/setup_18.x | bash && \
 	apt-get update && apt-get install -y nodejs
 
 WORKDIR /var/www/html
