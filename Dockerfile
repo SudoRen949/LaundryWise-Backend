@@ -20,16 +20,16 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-RUN curl -sS https://deb.nodesource.com/setup_18.x | bash && \
+RUN curl -si https://deb.nodesource.com/setup_18.x | bash && \
 	apt-get update && apt-get install -y nodejs
 
 WORKDIR /var/www/html
 
 COPY . .
 
-EXPOSE 8000
+EXPOSE 8080
 
 RUN composer install
 RUN npm install
 
-CMD php artisan migrate && php artisan serve --host=0.0.0.0 --port=8000
+CMD php artisan migrate --force && php artisan serve --host=0.0.0.0 --port=8080
