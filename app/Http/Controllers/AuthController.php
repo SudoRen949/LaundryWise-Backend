@@ -13,42 +13,50 @@ class AuthController extends Controller
     // Account registration
     public function register(Request $req)
     {
-        $validator = Validator::make($req->all(),[
-            "name" => "required|string|max:191",
-            "email" => "required|string|email|max:191|unique:users",
-            "password" => "required|string|min:8|confirmed",
-            "role" => "required|string"
-        ]);
-        if ($validator->fails()) return response()->json(["error" => $validator->errors()],500);
-        $user = User::create([
-            "name" => $req->name,
-            "email" => $req->email,
-            "password" => Hash::make($req->password),
-            "role" => $req->role,
-            "login_dt" => "NULL"
-        ]);
-        return response()->json(["message" => "Account successfuly created"]);
+        try {
+            $validator = Validator::make($req->all(),[
+                "name" => "required|string|max:191",
+                "email" => "required|string|email|max:191|unique:users",
+                "password" => "required|string|min:8|confirmed",
+                "role" => "required|string"
+            ]);
+            if ($validator->fails()) return response()->json(["error" => $validator->errors()],500);
+            $user = User::create([
+                "name" => $req->name,
+                "email" => $req->email,
+                "password" => Hash::make($req->password),
+                "role" => $req->role,
+                "login_dt" => "NULL"
+            ]);
+            return response()->json(["message" => "Account successfuly created"]);
+        } catch (\Throwable $e) {
+            return response()->json([ "error" => $e->getMessage() ]);
+        }
     }
     // Account authentication
     public function login(Request $req)
     {
-        $req->validate([
-            "email" => "required|email",
-            "password" => "required",
-            "role" => "required",
-            "login_dt" => "required"
-        ]);
-        $user = User::where("email",$req->email)->where("role",$req->role)->first();
-        if (!$user) return response()->json(["message" => "Account does not exist"],404);
-        else if (!Hash::check($req->password,$user->password)) return response()->json(["message" => "Wrong password"],401);
-        $user->login_dt = $req->login_dt;
-        $user->save();
-        return response()->json([
-        	"id" => $user->id,
-        	"name" => $user->name,
-        	"email" => $user->email,
-        	"contact" => $user->contact
-        ]);
+        try {
+            $req->validate([
+                "email" => "required|email",
+                "password" => "required",
+                "role" => "required",
+                "login_dt" => "required"
+            ]);
+            $user = User::where("email",$req->email)->where("role",$req->role)->first();
+            if (!$user) return response()->json(["message" => "Account does not exist"],404);
+            else if (!Hash::check($req->password,$user->password)) return response()->json(["message" => "Wrong password"],401);
+            $user->login_dt = $req->login_dt;
+            $user->save();
+            return response()->json([
+            	"id" => $user->id,
+            	"name" => $user->name,
+            	"email" => $user->email,
+            	"contact" => $user->contact
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([ "error" => $e->getMessage() ]);
+        }
     }
     // Logout an account
     public function logout(Request $req)
